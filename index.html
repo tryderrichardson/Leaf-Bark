@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -435,8 +436,8 @@
 </div>
 
 <script>
-/* ---------- Species data (40 UK trees) ---------- */
-const SPECIES = [
+/* ---------- Species data (60 UK trees) ---------- */
+const TREE_SPECIES = [
   // Original 20 (beta) — all easy
   { common:"Pedunculate Oak", sci:"Quercus robur", accepted:["oak","english oak","common oak","pedunculate oak"], difficulty:"easy", type:"broadleaf", nativeStatus:"native", commercialStatus:"wild" },
   { common:"Ash", sci:"Fraxinus excelsior", accepted:["ash","common ash","european ash"], difficulty:"easy", type:"broadleaf", nativeStatus:"native", commercialStatus:"wild" },
@@ -519,18 +520,146 @@ const SPECIES = [
   { common:"Damson", sci:"Prunus insititia", accepted:["damson"], difficulty:"hard", type:"broadleaf", nativeStatus:"non-native", commercialStatus:"orchard" },
 ];
 
-const DIFFICULTIES = [
+/* ---------- Species data (80 UK wildflowers, South England focus) ----------
+   Curated for ecological survey usefulness rather than taxonomic completeness
+   (roughly 150-250 species is the practical ceiling for a field app, out of
+   ~1,600 species in Britain & Ireland — this 80 is a first slice of that).
+   Tier 3 (Hard) is built deliberately around two classic confusion clusters —
+   umbellifers and yellow composites ("DYCs") — rather than being a random
+   assortment, since those clusters are where real ID skill gets built.
+   Tier 4 (Expert) leans chalk grassland indicators + orchids, reflecting
+   habitat types with high survey value in the South. The "type" field is
+   repurposed here to hold plant family (unused elsewhere in the app logic,
+   same as it's cosmetic for trees) — kept for future grouping-by-family. */
+const WILDFLOWER_SPECIES = [
+  // Tier 1 — Easy / common (20)
+  { common:"Dandelion", sci:"Taraxacum officinale", accepted:["dandelion"], difficulty:"easy", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Daisy", sci:"Bellis perennis", accepted:["daisy","common daisy"], difficulty:"easy", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Creeping Buttercup", sci:"Ranunculus repens", accepted:["creeping buttercup"], difficulty:"easy", type:"buttercup family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"White Clover", sci:"Trifolium repens", accepted:["white clover","dutch clover"], difficulty:"easy", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Red Clover", sci:"Trifolium pratense", accepted:["red clover"], difficulty:"easy", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Ragwort", sci:"Jacobaea vulgaris", accepted:["common ragwort","ragwort"], difficulty:"easy", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Herb Robert", sci:"Geranium robertianum", accepted:["herb robert","herb-robert"], difficulty:"easy", type:"geranium family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Lesser Celandine", sci:"Ficaria verna", accepted:["lesser celandine","celandine"], difficulty:"easy", type:"buttercup family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Bramble", sci:"Rubus fruticosus", accepted:["bramble","blackberry"], difficulty:"easy", type:"rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Stinging Nettle", sci:"Urtica dioica", accepted:["stinging nettle","common nettle","nettle"], difficulty:"easy", type:"nettle family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Cow Parsley", sci:"Anthriscus sylvestris", accepted:["cow parsley"], difficulty:"easy", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Bluebell", sci:"Hyacinthoides non-scripta", accepted:["bluebell","common bluebell","english bluebell"], difficulty:"easy", type:"asparagus family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Foxglove", sci:"Digitalis purpurea", accepted:["foxglove","common foxglove"], difficulty:"easy", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Poppy", sci:"Papaver rhoeas", accepted:["common poppy","field poppy","red poppy"], difficulty:"easy", type:"poppy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Ox-eye Daisy", sci:"Leucanthemum vulgare", accepted:["ox eye daisy","ox-eye daisy","oxeye daisy","dog daisy"], difficulty:"easy", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Yarrow", sci:"Achillea millefolium", accepted:["yarrow","common yarrow"], difficulty:"easy", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Selfheal", sci:"Prunella vulgaris", accepted:["selfheal","self-heal","self heal"], difficulty:"easy", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Ribwort Plantain", sci:"Plantago lanceolata", accepted:["ribwort plantain","ribwort"], difficulty:"easy", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Greater Plantain", sci:"Plantago major", accepted:["greater plantain","broadleaf plantain"], difficulty:"easy", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Primrose", sci:"Primula vulgaris", accepted:["primrose","common primrose"], difficulty:"easy", type:"primrose family", nativeStatus:"native", commercialStatus:"wild" },
+  // Tier 2 — Medium (20)
+  { common:"Common Vetch", sci:"Vicia sativa", accepted:["common vetch"], difficulty:"medium", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Tufted Vetch", sci:"Vicia cracca", accepted:["tufted vetch"], difficulty:"medium", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Meadow Buttercup", sci:"Ranunculus acris", accepted:["meadow buttercup"], difficulty:"medium", type:"buttercup family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Bulbous Buttercup", sci:"Ranunculus bulbosus", accepted:["bulbous buttercup"], difficulty:"medium", type:"buttercup family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Knapweed", sci:"Centaurea nigra", accepted:["common knapweed","knapweed","hardheads"], difficulty:"medium", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Field Scabious", sci:"Knautia arvensis", accepted:["field scabious"], difficulty:"medium", type:"teasel family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Devil's-bit Scabious", sci:"Succisa pratensis", accepted:["devils bit scabious","devil's-bit scabious","devils-bit scabious"], difficulty:"medium", type:"teasel family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Mallow", sci:"Malva sylvestris", accepted:["common mallow","mallow"], difficulty:"medium", type:"mallow family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Fleabane", sci:"Pulicaria dysenterica", accepted:["common fleabane","fleabane"], difficulty:"medium", type:"daisy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Yellow Rattle", sci:"Rhinanthus minor", accepted:["yellow rattle"], difficulty:"medium", type:"broomrape family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Spotted-orchid", sci:"Dactylorhiza fuchsii", accepted:["common spotted orchid","common spotted-orchid"], difficulty:"medium", type:"orchid family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Wild Carrot", sci:"Daucus carota", accepted:["wild carrot"], difficulty:"medium", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Meadowsweet", sci:"Filipendula ulmaria", accepted:["meadowsweet"], difficulty:"medium", type:"rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Lady's Bedstraw", sci:"Galium verum", accepted:["ladys bedstraw","lady's bedstraw"], difficulty:"medium", type:"bedstraw family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Hedge Bindweed", sci:"Calystegia sepium", accepted:["hedge bindweed"], difficulty:"medium", type:"bindweed family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Field Bindweed", sci:"Convolvulus arvensis", accepted:["field bindweed"], difficulty:"medium", type:"bindweed family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Toadflax", sci:"Linaria vulgaris", accepted:["common toadflax","toadflax"], difficulty:"medium", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Betony", sci:"Betonica officinalis", accepted:["betony","common betony"], difficulty:"medium", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Agrimony", sci:"Agrimonia eupatoria", accepted:["agrimony","common agrimony"], difficulty:"medium", type:"rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Sorrel", sci:"Rumex acetosa", accepted:["common sorrel","sorrel"], difficulty:"medium", type:"knotweed family", nativeStatus:"native", commercialStatus:"wild" },
+  // Tier 3 — Hard: umbellifers, DYCs, and dead-nettle-family confusables (20)
+  { common:"Hogweed", sci:"Heracleum sphondylium", accepted:["hogweed","common hogweed"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Hemlock", sci:"Conium maculatum", accepted:["hemlock"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Upright Hedge-parsley", sci:"Torilis japonica", accepted:["upright hedge parsley","upright hedge-parsley"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Rough Chervil", sci:"Chaerophyllum temulum", accepted:["rough chervil"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Wild Angelica", sci:"Angelica sylvestris", accepted:["wild angelica"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Fool's Parsley", sci:"Aethusa cynapium", accepted:["fools parsley","fool's parsley"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Pignut", sci:"Conopodium majus", accepted:["pignut"], difficulty:"hard", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Cat's-ear", sci:"Hypochaeris radicata", accepted:["cats ear","cat's-ear","catsear"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Autumn Hawkbit", sci:"Scorzoneroides autumnalis", accepted:["autumn hawkbit"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Rough Hawkbit", sci:"Leontodon hispidus", accepted:["rough hawkbit"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Smooth Hawk's-beard", sci:"Crepis capillaris", accepted:["smooth hawksbeard","smooth hawk's-beard"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Nipplewort", sci:"Lapsana communis", accepted:["nipplewort"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Mouse-ear Hawkweed", sci:"Pilosella officinarum", accepted:["mouse ear hawkweed","mouse-ear hawkweed"], difficulty:"hard", type:"daisy family (DYC)", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Figwort", sci:"Scrophularia nodosa", accepted:["common figwort","figwort"], difficulty:"hard", type:"figwort family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Hedge Woundwort", sci:"Stachys sylvatica", accepted:["hedge woundwort"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Marsh Woundwort", sci:"Stachys palustris", accepted:["marsh woundwort"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Black Horehound", sci:"Ballota nigra", accepted:["black horehound"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Red Dead-nettle", sci:"Lamium purpureum", accepted:["red dead nettle","red dead-nettle"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"White Dead-nettle", sci:"Lamium album", accepted:["white dead nettle","white dead-nettle"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Ground-ivy", sci:"Glechoma hederacea", accepted:["ground ivy","ground-ivy"], difficulty:"hard", type:"mint family", nativeStatus:"native", commercialStatus:"wild" },
+  // Tier 4 — Expert: chalk grassland indicators, orchids, fiddly genera (20)
+  { common:"Bee Orchid", sci:"Ophrys apifera", accepted:["bee orchid"], difficulty:"expert", type:"orchid family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Pyramidal Orchid", sci:"Anacamptis pyramidalis", accepted:["pyramidal orchid"], difficulty:"expert", type:"orchid family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Early Purple Orchid", sci:"Orchis mascula", accepted:["early purple orchid"], difficulty:"expert", type:"orchid family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Twayblade", sci:"Neottia ovata", accepted:["common twayblade","twayblade"], difficulty:"expert", type:"orchid family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Eyebright", sci:"Euphrasia officinalis", accepted:["eyebright"], difficulty:"expert", type:"broomrape family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Fumitory", sci:"Fumaria officinalis", accepted:["common fumitory","fumitory"], difficulty:"expert", type:"poppy family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Whitlowgrass", sci:"Erophila verna", accepted:["common whitlowgrass","whitlowgrass"], difficulty:"expert", type:"cabbage family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Thyme-leaved Speedwell", sci:"Veronica serpyllifolia", accepted:["thyme leaved speedwell","thyme-leaved speedwell"], difficulty:"expert", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Germander Speedwell", sci:"Veronica chamaedrys", accepted:["germander speedwell"], difficulty:"expert", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Field-speedwell", sci:"Veronica persica", accepted:["common field speedwell","common field-speedwell"], difficulty:"expert", type:"plantain family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Sanicle", sci:"Sanicula europaea", accepted:["sanicle"], difficulty:"expert", type:"umbellifer", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Centaury", sci:"Centaurium erythraea", accepted:["common centaury","centaury"], difficulty:"expert", type:"gentian family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Yellow-wort", sci:"Blackstonia perfoliata", accepted:["yellow wort","yellow-wort"], difficulty:"expert", type:"gentian family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Squinancywort", sci:"Asperula cynanchica", accepted:["squinancywort"], difficulty:"expert", type:"bedstraw family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Dropwort", sci:"Filipendula vulgaris", accepted:["dropwort"], difficulty:"expert", type:"rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Salad Burnet", sci:"Sanguisorba minor", accepted:["salad burnet"], difficulty:"expert", type:"rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Common Rock-rose", sci:"Helianthemum nummularium", accepted:["common rock rose","common rock-rose","rock rose"], difficulty:"expert", type:"rock-rose family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Kidney Vetch", sci:"Anthyllis vulneraria", accepted:["kidney vetch"], difficulty:"expert", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Horseshoe Vetch", sci:"Hippocrepis comosa", accepted:["horseshoe vetch"], difficulty:"expert", type:"pea family", nativeStatus:"native", commercialStatus:"wild" },
+  { common:"Autumn Gentian", sci:"Gentianella amarella", accepted:["autumn gentian","felwort"], difficulty:"expert", type:"gentian family", nativeStatus:"native", commercialStatus:"wild" },
+];
+
+/* ---------- Plant groups registry ----------
+   Each group gets its own species pool and its own storage keys, so
+   progress/history/levels are tracked independently per group. The
+   iNaturalist taxon cache is shared globally since it's just sci-name ->
+   taxon-id and there's no downside to reusing it across groups. */
+const GROUPS = {
+  trees: {
+    label: "Trees",
+    noun: "UK tree species",
+    species: TREE_SPECIES,
+    storeKey: "leafbark_history_v1",
+    statsKey: "leafbark_species_stats_v1",
+    extraCategories: [
+      { key:"forestry", label:"Forestry species" },
+      { key:"orchard", label:"Orchard species" },
+    ],
+  },
+  wildflowers: {
+    label: "Wildflowers",
+    noun: "UK wildflower species (South England focus)",
+    species: WILDFLOWER_SPECIES,
+    storeKey: "leafbark_wf_history_v1",
+    statsKey: "leafbark_wf_species_stats_v1",
+    extraCategories: [],
+  },
+};
+let currentGroupKey = "trees";
+let SPECIES = GROUPS[currentGroupKey].species;
+
+const BASE_DIFFICULTIES = [
   { key:"easy", label:"Easy" },
   { key:"medium", label:"Medium" },
   { key:"hard", label:"Hard" },
   { key:"expert", label:"Expert" },
   { key:"all", label:"All" },
   { key:"weak", label:"Toughest for you" },
-  { key:"forestry", label:"Forestry species" },
-  { key:"orchard", label:"Orchard species" },
 ];
+function difficultiesForGroup(){
+  return [...BASE_DIFFICULTIES, ...(GROUPS[currentGroupKey].extraCategories || [])];
+}
 function difficultyLabel(key){
-  const d = DIFFICULTIES.find(d => d.key===key);
+  const d = difficultiesForGroup().find(d => d.key===key);
   return d ? d.label : key;
 }
 // Keys that are gated by the leveling system (see LEVELS below). All other
@@ -538,7 +667,7 @@ function difficultyLabel(key){
 const GATED_KEYS = new Set(["easy","medium","hard","expert"]);
 
 // nativeStatus/commercialStatus are still recorded per species (see the
-// SPECIES array) for possible future use, even though the tick-box filter
+// SPECIES arrays) for possible future use, even though the tick-box filter
 // UI has been removed in favour of dedicated Forestry/Orchard categories.
 const NATIVE_STATUSES = ["native","naturalised","non-native"];
 const COMMERCIAL_STATUSES = ["wild","forestry","orchard"];
@@ -570,10 +699,13 @@ function speciesForDifficulty(diff){
   return SPECIES.filter(s => included.includes(s.difficulty));
 }
 
-/* ---------- Persistence ---------- */
-const STORE_KEY = "leafbark_history_v1";
+/* ---------- Persistence ----------
+   STORE_KEY and STATS_KEY are mutable and swapped in enterGroup() so each
+   plant group's history/stats live in their own storage bucket. The taxon
+   cache stays on one shared key since it's just sci-name -> iNaturalist id. */
+let STORE_KEY = GROUPS[currentGroupKey].storeKey;
 const TAXON_CACHE_KEY = "leafbark_taxon_cache_v1";
-const STATS_KEY = "leafbark_species_stats_v1";
+let STATS_KEY = GROUPS[currentGroupKey].statsKey;
 
 function loadHistory(){
   try{
@@ -687,10 +819,19 @@ function pctAtConfidence(pool, minConf){
   if(!pool.length) return 1;
   return pool.filter(s => rawSuccessRate(s.common) >= minConf).length / pool.length;
 }
-const EASY_POOL = taggedPool("easy");
-const MEDIUM_POOL = taggedPool("medium");
-const HARD_POOL = taggedPool("hard");
-const EXPERT_POOL = taggedPool("expert");
+// Mutable so they can be recomputed against the active group's species list
+// whenever enterGroup() switches SPECIES (see recomputePools() below). The
+// LEVELS[].check() closures read these via outer-scope reference, so they
+// automatically pick up the current group's pools without needing LEVELS
+// itself to be rebuilt.
+let EASY_POOL, MEDIUM_POOL, HARD_POOL, EXPERT_POOL;
+function recomputePools(){
+  EASY_POOL = taggedPool("easy");
+  MEDIUM_POOL = taggedPool("medium");
+  HARD_POOL = taggedPool("hard");
+  EXPERT_POOL = taggedPool("expert");
+}
+recomputePools();
 
 const LEVELS = [
   { name:"Level 2", unlocks:"medium",
@@ -882,10 +1023,26 @@ let state = { screen:"groups" };
 const PLANT_GROUPS = [
   { key:"trees", label:"Trees", locked:false },
   { key:"grasses", label:"Grasses, sedges and rushes", locked:true },
-  { key:"wildflowers", label:"Wildflowers", locked:true },
+  { key:"wildflowers", label:"Wildflowers", locked:false },
   { key:"aquatic", label:"Aquatic plants", locked:true },
   { key:"indicator", label:"Indicator species", locked:true },
 ];
+
+// Switches the active plant group: swaps the species pool, points storage
+// at that group's own history/stats buckets, reloads them, and recomputes
+// the difficulty-tier pools the leveling system checks against.
+function enterGroup(key){
+  currentGroupKey = key;
+  const g = GROUPS[key];
+  SPECIES = g.species;
+  STORE_KEY = g.storeKey;
+  STATS_KEY = g.statsKey;
+  history = loadHistory();
+  speciesStats = loadStats();
+  recomputePools();
+  state = { screen:"home" };
+  render();
+}
 
 function render(){
   if(state.screen==="groups") renderGroups();
@@ -909,25 +1066,25 @@ function renderGroups(){
     ${PLANT_GROUPS.map(g => `
       <button class="mode-card" data-key="${g.key}" ${g.locked?"disabled":""}>
         <h2>${g.label}</h2>
-        <p>${g.locked ? "Coming soon" : SPECIES.length + " species"}</p>
+        <p>${g.locked ? "Coming soon" : GROUPS[g.key].species.length + " species"}</p>
       </button>
     `).join("")}
   `;
   document.querySelectorAll(".mode-card").forEach(btn => {
     if(btn.disabled) return;
     btn.onclick = () => {
-      if(btn.dataset.key==="trees"){ state = {screen:"home"}; render(); }
+      if(GROUPS[btn.dataset.key]) enterGroup(btn.dataset.key);
     };
   });
 }
 
 function renderHome(){
-  pageTitle.textContent = "Trees";
+  pageTitle.textContent = GROUPS[currentGroupKey].label;
   main.innerHTML = `
     <div class="top-nav">
       <button class="back-link" id="back-groups">← Groups</button>
     </div>
-    <p class="field-note">${SPECIES.length} UK tree species. Pick a mode to test yourself — species you're shakier on come up more often.</p>
+    <p class="field-note">${SPECIES.length} ${GROUPS[currentGroupKey].noun}. Pick a mode to test yourself — species you're shakier on come up more often.</p>
     <button class="mode-card" id="go-mode1">
       <h2>Picture → Name</h2>
       <p>A photo appears. Type the species name.</p>
@@ -961,7 +1118,7 @@ function renderDifficulty(){
     <p class="field-note">${progression.levelName}${progression.nextRequirement ? " — next: " + progression.nextRequirement : " — every level complete"}</p>
     ${(() => {
       let requirementShown = false;
-      return DIFFICULTIES.map(d => {
+      return difficultiesForGroup().map(d => {
         const pool = speciesForDifficulty(d.key);
         const empty = pool.length===0;
         const locked = GATED_KEYS.has(d.key) && !progression.unlocked.has(d.key);
