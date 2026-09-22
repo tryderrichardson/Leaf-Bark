@@ -630,6 +630,7 @@ const GROUPS = {
     species: TREE_SPECIES,
     storeKey: "leafbark_history_v1",
     statsKey: "leafbark_species_stats_v1",
+    phenologyValue: 21, // "No Evidence of Flowering" — prefer clean leaf/bark shots
     extraCategories: [
       { key:"forestry", label:"Forestry species" },
       { key:"orchard", label:"Orchard species" },
@@ -641,6 +642,7 @@ const GROUPS = {
     species: WILDFLOWER_SPECIES,
     storeKey: "leafbark_wf_history_v1",
     statsKey: "leafbark_wf_species_stats_v1",
+    phenologyValue: 13, // "Flowering" — the flower is the primary diagnostic feature
     extraCategories: [],
   },
 };
@@ -948,16 +950,22 @@ async function getTaxonId(species){
 // Three-tier image quality preference, each falling back to the next if it
 // comes back empty or errors — so a filter that turns out to be too narrow
 // (or briefly wrong) degrades gracefully instead of breaking image loading:
-//  1. Research-grade AND annotated "No Evidence of Flowering" — this is a
-//     real, documented iNaturalist annotation (controlled term 12 "Plant
-//     Phenology", value 21), and photos without flowers/buds/fruit in view
-//     are overwhelmingly whole-plant or leaf shots, which is what we want.
+//  1. Research-grade AND annotated with the active group's preferred
+//     phenology state (controlled term 12 "Plant Phenology" — see each
+//     group's phenologyValue below). Trees prefer 21 "No Evidence of
+//     Flowering", since photos without flowers/buds/fruit in view are
+//     overwhelmingly whole-plant or leaf shots, which is what tree ID
+//     relies on. Wildflowers prefer 13 "Flowering" instead, since the
+//     flower itself is the primary diagnostic feature for that group.
 //  2. Research-grade only (community-vetted, but no phenology filter).
 //  3. Unfiltered — whatever has photos at all.
 async function fetchObservations(taxonId, tier){
   let url = `https://api.inaturalist.org/v1/observations?taxon_id=${taxonId}&photos=true&per_page=50&order_by=votes`;
   if(tier >= 1) url += `&quality_grade=research`;
-  if(tier >= 2) url += `&term_id=12&term_value_id=21`;
+  if(tier >= 2){
+    const phenologyValue = GROUPS[currentGroupKey].phenologyValue;
+    if(phenologyValue) url += `&term_id=12&term_value_id=${phenologyValue}`;
+  }
   const res = await fetch(url);
   if(!res.ok) throw new Error("observation search failed (HTTP " + res.status + ")");
   const data = await res.json();
